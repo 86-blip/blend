@@ -22,6 +22,7 @@ parser.add_argument("-dataset", type= str, help= "Dataset configuration",
 parser.add_argument("-model_root", type= str, default= "./checkpoint", help= "Dataset root directory")
 parser.add_argument("-model", type= str, default= "ResNet18", help= "Model selection")
 parser.add_argument("-save_model", type= bool, default= False, help= "Save trained model option")
+parser.add_argument("-scenario", type= str, default= "class", choices= ["class", "client", "sample"], help= "Training and unlearning scenario")
 
 # Unlearn configuration
 parser.add_argument("-unlearn_method", type= str, default= "lipschitz",
@@ -80,15 +81,20 @@ def main() -> None:
         unlearn_class=args.unlearn_class
     )
 
-# If forget_idx is specified, override split results to target a single sample
-if args.forget_idx is not None and args.forget_idx >= 0:
-    full_train = list(train_dataset)
-    if args.forget_idx < 0 or args.forget_idx >= len(full_train):
-        raise IndexError("forget_idx out of range")
-    forget_sample = full_train[args.forget_idx]
-    unlearn_dataset = [forget_sample]
-    retain_dataset = [full_train[i] for i in range(len(full_train)) if i != args.forget_idx]
+    # If forget_idx is specified, override split results to target a single sample
+    if args.forget_idx is not None and args.forget_idx >= 0:
+        full_train = list(train_dataset)
+        if args.forget_idx < 0 or args.forget_idx >= len(full_train):
+            raise IndexError("forget_idx out of range")
+        forget_sample = full_train[args.forget_idx]
+        unlearn_dataset = [forget_sample]
+        retain_dataset = [full_train[i] for i in range(len(full_train)) if i != args.forget_idx]
 
+    retain_loader = DataLoader(retain_dataset, batch_size=args.batch_size, shuffle=True)
+    unlearn_loader = DataLoader(unlearn_dataset, batch_size=args.batch_size, shuffle=False)
+    test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=True)
+
+    # Model preparation
     model = getattr(models, args.model)(
         num_classes=num_classes, input_channels=num_channels).to(device)
     unlearning_teacher = getattr(models, args.model)(
