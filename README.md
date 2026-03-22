@@ -128,14 +128,14 @@ python scripts/eval_forget.py --dataset Cifar10 --model_path checkpoint/forgot_i
 - **理想表现**: 应该保持与原始模型相近的高准确率
 - **意义**: 确保遗忘过程不会过度影响模型在其他数据上的性能
 
-### 2. 遗忘准确率 (Forget Accuracy) 
+### 2. 遗忘准确率 (Forget Accuracy)
 - **定义**: 模型在要遗忘的特定样本上的分类准确率
 - **理想表现**: 应该显著降低（接近随机猜测水平）
 - **意义**: 验证模型确实"忘记"了指定的样本，无法再正确分类该样本
 
 ### 3. MIA分数 (Membership Inference Attack Score)
 - **定义**: 使用成员推理攻击评估遗忘效果的指标
-- **计算方法**: 
+- **计算方法**:
   - 收集模型对保留集、遗忘集和测试集的预测概率
   - 计算每个样本预测概率的熵值
   - 使用逻辑回归分类器训练，区分"成员"（训练数据）和"非成员"（测试数据）
@@ -187,5 +187,5 @@ python scripts/plot_unlearn_csv.py --log_dir ./logs --out_dir ./plots
 3. **图表文件**：在 `plots/` 目录下，PNG格式的图像文件
 
 **提示：** 文件名中的时间戳格式为 `YYYYMMDD_HHMMSS`，可以帮助您找到最新的实验结果。
-#   b l e n d  
- 
+
+# blend
